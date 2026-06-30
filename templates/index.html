@@ -1,46 +1,93 @@
-{% if results %}
-  <div class="alert {% if results.score < 50 %}alert-danger{% else %}alert-warning{% endif %}">
-      <h4>Security Score: {{ results.score }}%</h4>
-      <p>Status: {{ results.status }}</p>
-  </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CyberGuard Vulnerability Scanner Dashboard">
+    <title>Dashboard - CyberGuard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="/">CyberGuard</a>
+            <span class="navbar-text text-white">Welcome, {{ current_user.username }} | <a href="/logout" class="text-danger text-decoration-none">Logout</a></span>
+        </div>
+    </nav>
 
-  {% if results.threats %}
-      <h3 class="mt-4">Detected Vulnerabilities:</h3>
-      <div class="row">
-      {% for threat in results.threats %}
-          <div class="col-md-6 mb-3">
-              <div class="card border-danger h-100">
-                  <div class="card-header bg-danger text-white">Missing: {{ threat.header }}</div>
-                  <div class="card-body">
-                      <p><strong>What is missing?</strong> {{ threat.missing }}</p>
-                      <p><strong>Why is it required?</strong> {{ threat.why }}</p>
-                      <p><strong>Impact:</strong> {{ threat.impact }}</p>
-                  </div>
-              </div>
-          </div>
-      {% endfor %}
-      </div>
-  {% else %}
-      <div class="alert alert-success">No major vulnerabilities detected! Excellent configuration.</div>
-  {% endif %}
-{% endif %}
+    <div class="container">
+        <div class="card shadow-sm mb-5 p-4">
+            <h2 class="mb-3">New Security Scan</h2>
+            <form method="POST" action="/">
+                <div class="input-group">
+                    <input type="text" name="url" class="form-control" placeholder="Enter target URL (e.g., google.com)" required>
+                    <button type="submit" class="btn btn-primary">Scan Website</button>
+                </div>
+            </form>
+        </div>
 
-<h3 class="mt-5">Your Scan History</h3>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Target URL</th>
-            <th>Score</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for scan in history %}
-        <tr>
-            <td>{{ scan.date.strftime('%Y-%m-%d %H:%M') }}</td>
-            <td>{{ scan.url }}</td>
-            <td>{{ scan.score }}%</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        {% if results %}
+        <div class="alert {% if results.score < 50 %}alert-danger{% else %}alert-warning{% endif %} shadow-sm">
+            <h4>Security Score: {{ results.score }}%</h4>
+            <p class="mb-0"><strong>Status:</strong> {{ results.status }}</p>
+        </div>
+
+        {% if results.threats %}
+            <h3 class="mt-4 mb-3">Detected Vulnerabilities:</h3>
+            <div class="row">
+            {% for threat in results.threats %}
+                <div class="col-md-6 mb-3">
+                    <div class="card border-danger h-100 shadow-sm">
+                        <div class="card-header bg-danger text-white">Missing: {{ threat.header }}</div>
+                        <div class="card-body">
+                            <p><strong>What is missing?</strong> {{ threat.missing }}</p>
+                            <p><strong>Why is it required?</strong> {{ threat.why }}</p>
+                            <p class="mb-0"><strong>Impact:</strong> {{ threat.impact }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-success mt-3 shadow-sm">No major vulnerabilities detected! Excellent configuration.</div>
+        {% endif %}
+        {% endif %}
+
+        <h3 class="mt-5 mb-3">Your Isolated Scan History</h3>
+        <div class="table-responsive bg-white rounded shadow-sm">
+            <table class="table table-striped mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Target URL</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for scan in history %}
+                    <tr>
+                        <td>{{ scan.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ scan.url }}</td>
+                        <td>
+                            <span class="badge {% if scan.score < 50 %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                                {{ scan.score }}%
+                            </span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="text-center text-muted py-3">No scans run yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer class="text-center mt-5 py-4 border-top">
+        <div class="container">
+            <p class="text-muted mb-0">&copy; 2026 SITER Academy Project - CyberGuard | <a href="/policy" class="text-decoration-none">Terms & Policy</a></p>
+        </div>
+    </footer>
+</body>
+</html>

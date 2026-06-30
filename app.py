@@ -3,11 +3,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
-import json
 from datetime import datetime
 
 app = Flask(__name__)
-# Security key for session management (Keep this secret in production)
+# Security key for session management
 app.config['SECRET_KEY'] = 'siter_cyberguard_super_secret_2026'
 # Database setup
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cyberguard.db'
@@ -97,7 +96,6 @@ def register():
         username = request.form.get('username')
         password = request.form.get('password')
         
-        # Check if user exists
         user = User.query.filter_by(username=username).first()
         if user:
             flash('Username already exists.')
@@ -138,12 +136,10 @@ def index():
         target_url = request.form.get('url')
         if target_url:
             scan_results = scan_url(target_url)
-            # Save to isolated user history
             new_scan = ScanHistory(user_id=current_user.id, url=target_url, score=scan_results['score'])
             db.session.add(new_scan)
             db.session.commit()
             
-    # Fetch ONLY the current user's history
     user_history = ScanHistory.query.filter_by(user_id=current_user.id).order_by(ScanHistory.date.desc()).all()
     return render_template('index.html', results=scan_results, history=user_history)
 
@@ -152,7 +148,6 @@ def policy():
     return render_template('policy.html')
 
 if __name__ == '__main__':
-    # Initialize the database file automatically before running
     with app.app_context():
         db.create_all()
     app.run(host='0.0.0.0', port=8080, debug=True)
