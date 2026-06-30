@@ -1,0 +1,46 @@
+{% if results %}
+  <div class="alert {% if results.score < 50 %}alert-danger{% else %}alert-warning{% endif %}">
+      <h4>Security Score: {{ results.score }}%</h4>
+      <p>Status: {{ results.status }}</p>
+  </div>
+
+  {% if results.threats %}
+      <h3 class="mt-4">Detected Vulnerabilities:</h3>
+      <div class="row">
+      {% for threat in results.threats %}
+          <div class="col-md-6 mb-3">
+              <div class="card border-danger h-100">
+                  <div class="card-header bg-danger text-white">Missing: {{ threat.header }}</div>
+                  <div class="card-body">
+                      <p><strong>What is missing?</strong> {{ threat.missing }}</p>
+                      <p><strong>Why is it required?</strong> {{ threat.why }}</p>
+                      <p><strong>Impact:</strong> {{ threat.impact }}</p>
+                  </div>
+              </div>
+          </div>
+      {% endfor %}
+      </div>
+  {% else %}
+      <div class="alert alert-success">No major vulnerabilities detected! Excellent configuration.</div>
+  {% endif %}
+{% endif %}
+
+<h3 class="mt-5">Your Scan History</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Target URL</th>
+            <th>Score</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for scan in history %}
+        <tr>
+            <td>{{ scan.date.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>{{ scan.url }}</td>
+            <td>{{ scan.score }}%</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
